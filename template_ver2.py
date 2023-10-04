@@ -9,10 +9,10 @@ from sklearn.metrics import confusion_matrix
 ###########################MAGIC HAPPENS HERE##########################
 # Change the hyper-parameters to get the model performs well
 config = {
-    'batch_size': 20,
+    'batch_size': 80,
     'image_size': (30,30),
-    'epochs': 10,
-    'optimizer': keras.optimizers.experimental.SGD(1e-3)
+    'epochs': 100,
+    'optimizer': keras.optimizers.experimental.SGD(5e-3)
 }
 ###########################MAGIC ENDS  HERE##########################
 
@@ -39,7 +39,7 @@ def data_processing(ds):
             # Use dataset augmentation methods to prevent overfitting, 
             layers.RandomFlip("horizontal_and_vertical"),
             layers.RandomRotation(0.3),
-            layers.RandomContrast([.85, 1.15])
+            #layers.RandomContrast([.85, 1.15])
             ###########################MAGIC ENDS HERE##########################
         ]
     )
@@ -58,9 +58,15 @@ def build_model(input_shape, num_classes):
     # Use Keras API like `x = layers.XXX()(x)`
     # Hint: Use a Deeper network (i.e., more hidden layers, different type of layers)
     # and different combination of activation function to achieve better result.
-    hidden_units = 10
+    hidden_units = 6
+    hidden_layer_2 = 12
+    hidden_layer_3 = 6
     x = layers.Flatten()(x)
     x = layers.Dense(hidden_units, activation='relu')(x)
+    x = layers.Dense(hidden_layer_2, activation='relu')(x)
+    x = layers.Dense(hidden_layer_3, activation='relu')(x)
+
+    
 
     ###########################MAGIC ENDS HERE##########################
     outputs = layers.Dense(num_classes, activation="softmax", kernel_initializer='he_normal')(x)
@@ -90,6 +96,7 @@ if __name__ == '__main__':
     )
     ###########################MAGIC HAPPENS HERE##########################
     print(history.history)
+    temp_history = history.history
     test_loss, test_acc = model.evaluate(test_ds, verbose=2)
     print("\nTest Accuracy: ", test_acc)
     test_images = np.concatenate([x for x, y in test_ds], axis=0)
@@ -100,16 +107,19 @@ if __name__ == '__main__':
     # Hint: check the precision and recall functions from sklearn package or you can implement these function by yourselves.
     # 3. Visualize three misclassified images
     # Hint: Use the test_images array to generate the misclassified images using matplotlib
+    plt.plot(range(config['epochs']), temp_history["accuracy"], label = "Training")
+    plt.plot(range(config['epochs']), temp_history["val_accuracy"], label = "Validation")
+    plt.legend()
+    plt.show()
     fig, ax = plt.subplots()
     # Here
     flowers = sklearn.metrics.confusion_matrix(test_labels, test_prediction)
     im = ax.imshow(flowers)
 
 
+
     ax.set_xticks(range(5))
     ax.set_yticks(range(5))
-
-    print(test_labels)
 
     plt.setp(ax.get_xticklabels(), rotation = 45, ha="right", rotation_mode="anchor")
 
