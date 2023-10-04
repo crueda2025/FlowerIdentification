@@ -3,14 +3,16 @@ from tensorflow import keras
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 import numpy as np
+import sklearn
+from sklearn.metrics import confusion_matrix
 
 ###########################MAGIC HAPPENS HERE##########################
 # Change the hyper-parameters to get the model performs well
 config = {
-    'batch_size': 64,
+    'batch_size': 20,
     'image_size': (30,30),
-    'epochs': 20,
-    'optimizer': keras.optimizers.experimental.SGD(1e-2)
+    'epochs': 10,
+    'optimizer': keras.optimizers.experimental.SGD(1e-3)
 }
 ###########################MAGIC ENDS  HERE##########################
 
@@ -35,8 +37,9 @@ def data_processing(ds):
         [
             ###########################MAGIC HAPPENS HERE##########################
             # Use dataset augmentation methods to prevent overfitting, 
-            layers.RandomFlip("horizontal"),
-            layers.RandomRotation(0.3)
+            layers.RandomFlip("horizontal_and_vertical"),
+            layers.RandomRotation(0.3),
+            layers.RandomContrast([.85, 1.15])
             ###########################MAGIC ENDS HERE##########################
         ]
     )
@@ -55,7 +58,7 @@ def build_model(input_shape, num_classes):
     # Use Keras API like `x = layers.XXX()(x)`
     # Hint: Use a Deeper network (i.e., more hidden layers, different type of layers)
     # and different combination of activation function to achieve better result.
-    hidden_units = 4
+    hidden_units = 10
     x = layers.Flatten()(x)
     x = layers.Dense(hidden_units, activation='relu')(x)
 
@@ -97,6 +100,27 @@ if __name__ == '__main__':
     # Hint: check the precision and recall functions from sklearn package or you can implement these function by yourselves.
     # 3. Visualize three misclassified images
     # Hint: Use the test_images array to generate the misclassified images using matplotlib
+    fig, ax = plt.subplots()
+    # Here
+    flowers = sklearn.metrics.confusion_matrix(test_labels, test_prediction)
+    im = ax.imshow(flowers)
+
+    ax.set_xticks(np.arange(len(test_labels)), labels=test_labels)
+    ax.set_yticks(np.arange(len(test_labels)), labels=test_labels)
+
+    
+
+    plt.setp(ax.get_xticklabels(), rotation = 45, ha="right", rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(test_labels)):
+        for j in range(len(test_labels)):
+            text = ax.text(j, i, flowers[i, j],
+                        ha="center", va="center", color="w")
+
+    ax.set_title("Harvest of local flowers (in tons/year)")
+    fig.tight_layout()
+    plt.show()
 
 
 
