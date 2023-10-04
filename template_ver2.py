@@ -105,20 +105,21 @@ if __name__ == '__main__':
     flowers = sklearn.metrics.confusion_matrix(test_labels, test_prediction)
     im = ax.imshow(flowers)
 
-    ax.set_xticks(np.arange(len(test_labels)), labels=test_labels)
-    ax.set_yticks(np.arange(len(test_labels)), labels=test_labels)
 
-    
+    ax.set_xticks(range(5))
+    ax.set_yticks(range(5))
+
+    print(test_labels)
 
     plt.setp(ax.get_xticklabels(), rotation = 45, ha="right", rotation_mode="anchor")
 
     # Loop over data dimensions and create text annotations.
-    for i in range(len(test_labels)):
-        for j in range(len(test_labels)):
+    for i in range(5):
+        for j in range(5):
             text = ax.text(j, i, flowers[i, j],
                         ha="center", va="center", color="w")
 
-    ax.set_title("Harvest of local flowers (in tons/year)")
+    ax.set_title("Confusion Matrix")
     fig.tight_layout()
     plt.show()
 
